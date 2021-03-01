@@ -1,12 +1,25 @@
 import 'react-native-gesture-handler';
-import React from 'react'
-import { Dimensions, Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react'
+import { Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Itinerary from './Itinerary';
 
 
-const ItinerariesCity = () => {
-  const city = { likes: 5, duration: 1, cost: 2, cityName: 'Paris', url: '../assets/paris.webp' }
+const ItinerariesCity = (props) => {
+  const [itineraries, setItineraries] = useState([])
+
+  const id = props.route.params.city._id
+  const cityName = props.route.params.city.cityName
+  
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const fetchData = () => {
+    fetch(`http://rabellino-mytinerary.herokuapp.com/api/itineraries/${id}`)
+      .then(response => response.json())
+      .then(data => setItineraries(data.response))
+  }
 
   return (
     <View style={styles.viewAll}>
@@ -14,11 +27,18 @@ const ItinerariesCity = () => {
         <View style={styles.citiesFirstView}>
           <Image style={styles.logo} source={require('../assets/mytinerary.png')} />
           <ImageBackground style={styles.cityImage} source={require('../assets/paris.webp')}>
-            <Text style={styles.cityName}>{city.cityName}</Text>
+            <Text style={styles.cityName}>{cityName}</Text>
           </ImageBackground>
-          {/* <i style={styles.icon} className="far fa-heart"></i> */}
-          <Icon name="heart" size={30} color="red" />
-          <Icon name="money" size={30} color="green" />
+          {itineraries.length > 0
+            ? itineraries.map(itinerary => {
+              return (
+                <Itinerary itinerary={itinerary} key={itinerary._id} />
+              )
+            })
+            : <ImageBackground style={styles.noItYet} imageStyle={{ borderRadius: 40 }} source={require('../assets/noItYet.jpg')}>
+                <Text style={styles.textNoItYet}>There are no itineraries available yet</Text>
+              </ImageBackground>
+          }
         </View>
       </ScrollView>
     </View>
@@ -27,13 +47,12 @@ const ItinerariesCity = () => {
 
 const styles = StyleSheet.create({
   viewAll: {
-    backgroundColor: 'lightcian',
+    backgroundColor: 'rgb(135, 206, 250)',
     flex: 1
   },
   citiesFirstView: {
     justifyContent: 'space-around',
     alignItems: 'center',
-    // height: Dimensions.get('window').height
   },
   logo: {
     borderRadius: 20,
@@ -41,7 +60,7 @@ const styles = StyleSheet.create({
     width: 300,
     height: 100,
     resizeMode: 'cover',
-    marginTop: 20,
+    marginTop: 30,
     marginBottom: 10
   },
   cityImage: {
@@ -52,12 +71,11 @@ const styles = StyleSheet.create({
 
   },
   cityName: {
-    fontFamily: 'comic sans',
     width: '100%',
     padding: 1,
     fontSize: 26,
     textAlign: 'center',
-    color: 'rgba(255, 235, 205, 0.7)',
+    color: 'rgb(255, 235, 205)',
     fontWeight: 'bold',
     textShadowColor: 'black',
     textShadowRadius: 5,
@@ -66,6 +84,23 @@ const styles = StyleSheet.create({
   icon: {
     width: 50,
     height: 50
+  },
+  noItYet: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 10,
+    width: 280,
+    height: 180
+  },
+  textNoItYet: {
+    color: 'rgb(255, 235, 205)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    textAlign: 'center',
+    borderRadius: 30,
+    fontSize: 20,
+    margin: 10,
+    padding: 10
   }
 })
 

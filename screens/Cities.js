@@ -1,29 +1,33 @@
 import 'react-native-gesture-handler';
-import React from 'react'
-import { Dimensions, Image, ImageBackground, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react'
+import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-const Cities = () => {
-  const cities = [
-    { cityName: 'Paris', url: '../assets/paris.webp' },
-    { cityName: 'Paris', url: '../assets/paris.webp' },
-    { cityName: 'Paris', url: '../assets/paris.webp' },
-    { cityName: 'Paris', url: '../assets/paris.webp' },
-    { cityName: 'Paris', url: '../assets/paris.webp' },
-    { cityName: 'Paris', url: '../assets/paris.webp' },
-    { cityName: 'Paris', url: '../assets/paris.webp' }
-  ]
+const Cities = (props) => {
+  const [cities, setCities] = useState([])
+
+  useEffect(() => {
+    fetchdata()
+  }, [])
+
+  const fetchdata = () => {
+    fetch('http://rabellino-mytinerary.herokuapp.com/api/cities')
+      .then(response => response.json())
+      .then(data => setCities(data.response))
+  }
+
   return (
     <View style={styles.viewAll}>
       <ScrollView>
         <View style={styles.citiesFirstView}>
           <Image style={styles.logo} source={require('../assets/mytinerary.png')} />
-          <Text style={styles.title}>Cities</Text>
-          {cities.map(city => {
+          {cities.length > 0 && cities.map(city => {
             return (
-              <ImageBackground style={styles.cityImage} imageStyle={{ borderRadius: 20 }} source={require('../assets/paris.webp')}>
-                <Text style={styles.cityName}>{city.cityName}</Text>
-              </ImageBackground>
+              <TouchableOpacity onPress={() => props.navigation.navigate('ItinerariesCity', { city: city })} key={city._id}>
+                <ImageBackground style={styles.cityImage} imageStyle={{ borderRadius: 20 }} source={{uri: city.cityImage}}>
+                  <Text style={styles.cityName}>{city.cityName}</Text>
+                </ImageBackground>
+              </TouchableOpacity>
             )
           })}
         </View>
@@ -34,13 +38,12 @@ const Cities = () => {
 
 const styles = StyleSheet.create({
   viewAll: {
-    backgroundColor: 'lightcian',
+    backgroundColor: 'rgb(135, 206, 250)',
     flex: 1
   },
   citiesFirstView: {
     justifyContent: 'space-around',
     alignItems: 'center',
-    // height: Dimensions.get('window').height
   },
   logo: {
     borderRadius: 20,
@@ -48,11 +51,11 @@ const styles = StyleSheet.create({
     width: 300,
     height: 100,
     resizeMode: 'cover',
-    marginTop: 20
+    marginTop: 30,
+    marginBottom: 30
   },
   title: {
     fontSize: 26,
-    fontFamily: 'comic sans',
     marginTop: 5,
     marginBottom: 5
   },
@@ -64,14 +67,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cityName: {
-    fontFamily: 'comic sans',
     width: '100%',
     padding: 1,
     fontSize: 26,
     textAlign: 'center',
-    color: 'rgba(255, 235, 205, 0.7)',
+    color: 'rgb(255, 235, 205)',
     fontWeight: 'bold',
-    textShadowColor: 'black',
+    textShadowColor: 'rgb(0, 0, 0)',
     textShadowRadius: 5,
     backgroundColor: 'rgba(0, 0, 0, 0.5)'
   },
